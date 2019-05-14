@@ -57,26 +57,10 @@ class App extends React.Component<AppProps, AppState>{
 		});
 	}
 	doitClick(id: number){
-		const lt = this.state.todolist.map((x) => {
-			if(x.id == id){
-				x.status = TodoStatus.Doit;
-			}
-			return x;
-		});
-		this.setState({
-			todolist: lt
-		});
+		this.changeState(id, TodoStatus.Doit);
 	}
 	notDoitClick(id: number){
-		const lt = this.state.todolist.map((x) => {
-			if(x.id == id){
-				x.status = TodoStatus.Wait;
-			}
-			return x;
-		});
-		this.setState({
-			todolist: lt
-		});
+		this.changeState(id, TodoStatus.Wait);
 	}
 	deleteClick(id: number){
 		if(window.confirm('削除する？')){
@@ -86,9 +70,12 @@ class App extends React.Component<AppProps, AppState>{
 		}
 	}
 	editClick(id: number){
+		this.changeState(id, TodoStatus.Updating);
+	}
+	changeState(id: number, status: TodoStatus){
 		const lt = this.state.todolist.map((x) => {
 			if(x.id == id){
-				x.status = TodoStatus.Updating;
+				x.status = status;
 			}
 			return x;
 		});
