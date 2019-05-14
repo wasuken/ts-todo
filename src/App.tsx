@@ -3,7 +3,8 @@ import * as ReactDOM from 'react-dom';
 
 enum TodoStatus{
 	Wait = 1,					// 未完了
-	Doit = 2					// 完了
+	Doit = 2,					// 完了
+	Updating = 3				// 更新中
 }
 
 interface AppProps{
@@ -30,6 +31,8 @@ class App extends React.Component<AppProps, AppState>{
 		this.deleteClick = this.deleteClick.bind(this);
 		this.doitClick = this.doitClick.bind(this);
 		this.notDoitClick = this.notDoitClick.bind(this);
+		this.editClick = this.editClick.bind(this);
+		this.updatedClick = this.updatedClick.bind(this);
 	}
 	createNumber(todolist: Todo[]): number{
 		if(todolist.length <= 0){
@@ -82,11 +85,37 @@ class App extends React.Component<AppProps, AppState>{
 			});
 		}
 	}
+	editClick(id: number){
+		const lt = this.state.todolist.map((x) => {
+			if(x.id == id){
+				x.status = TodoStatus.Updating;
+			}
+			return x;
+		});
+		this.setState({
+			todolist: lt
+		});
+	}
+	updatedClick(id: number){
+		const title = document.getElementById('main')!.querySelector<HTMLInputElement>('#edit_title_' + id)!.value;
+		const content = document.getElementById('main')!.querySelector<HTMLInputElement>('#edit_content_' + id)!.value;
+		const lt = this.state.todolist.map((x) => {
+			if(x.id == id){
+				x.status = TodoStatus.Wait;
+				x.title = title;
+				x.content = content;
+			}
+			return x;
+		});
+		this.setState({
+			todolist: lt
+		});
+	}
 	render(): JSX.Element{
 		const list = this.state.todolist.map((x, i)=>{
 			if(x.status == TodoStatus.Doit){
 				return (
-						<li>
+						<li key={i}>
 						<s>
 						{x.title}:{x.content}
 					    </s>
@@ -94,12 +123,21 @@ class App extends React.Component<AppProps, AppState>{
 						<button onClick={()=>this.deleteClick(x.id)}>削除</button>
 						</li>
 				)
-			}else{
+			}else if(x.status == TodoStatus.Wait){
 				return (
-						<li>
+						<li key={i}>
 						{x.title}:{x.content}
 						<button onClick={()=>this.doitClick(x.id)}>完了</button>
+						<button onClick={()=>this.editClick(x.id)}>更新</button>
 						<button onClick={()=>this.deleteClick(x.id)}>削除</button>
+						</li>
+				);
+			}else{
+				return (
+						<li key={i}>
+						<input type="text" id={"edit_title_" + x.id} defaultValue={x.title} />
+						<input type="text" id={"edit_content_" + x.id} defaultValue={x.content} />
+						<button onClick={()=>this.updatedClick(x.id)}>編集完了</button>
 						</li>
 				);
 			}
